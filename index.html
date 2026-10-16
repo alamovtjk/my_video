@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рамиса & Самир ❤️</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Great+Vibes&family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            roseGold: '#B76E79',
+            deepRose: '#880e4f',
+            blushPink: '#ffdde1',
+            hotMagenta: '#e91e63',
+            softPink: '#fff0f5'
+          },
+          fontFamily: {
+            sans: ['Montserrat', 'sans-serif'],
+            handwriting: ['Caveat', 'cursive'],
+            cursive: ['Great Vibes', 'cursive']
+          },
+          aspectRatio: {
+            'vertical': '9 / 16'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      transition: all 0.3s ease;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1a000c 0%, #380019 35%, #520025 70%, #200010 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      color: #fff;
+    }
+
+    /* Эффект матового стекла */
+    .glass-card {
+      background: rgba(255, 192, 203, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 182, 193, 0.25);
+      box-shadow: 0 8px 32px 0 rgba(233, 30, 99, 0.25);
+    }
+
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .glass-btn:hover {
+      background: rgba(255, 105, 180, 0.4);
+      border-color: rgba(255, 192, 203, 0.8);
+      box-shadow: 0 0 15px rgba(255, 105, 180, 0.6);
+    }
+
+    /* Анимированное свечение */
+    .glow-effect {
+      box-shadow: 0 0 30px rgba(233, 30, 99, 0.6), inset 0 0 15px rgba(255, 182, 193, 0.3);
+    }
+
+    /* Пульсация сердца */
+    @keyframes heartbeat {
+      0% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.8)); }
+      15% { transform: scale(1.15); filter: drop-shadow(0 0 25px rgba(255, 105, 180, 1)); }
+      30% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.8)); }
+      45% { transform: scale(1.2); filter: drop-shadow(0 0 30px rgba(255, 105, 180, 1)); }
+      60% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.8)); }
+      100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.8)); }
+    }
+
+    .animate-heartbeat {
+      animation: heartbeat 2s infinite ease-in-out;
+    }
+
+    /* Анимация падающих сердечек */
+    .floating-heart {
+      position: fixed;
+      top: -10%;
+      user-select: none;
+      pointer-events: none;
+      z-index: 0;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(0.8);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg) scale(1.2);
+        opacity: 0;
+      }
+    }
+
+    /* Кастомный видеоплеер */
+    video::-webkit-media-controls {
+      display: none !important;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(233, 30, 99, 0.5);
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="relative flex flex-col items-center justify-center p-4 md:p-8 min-h-screen font-sans selection:bg-pink-500 selection:text-white">
+
+  <!-- Фон с летающими сердечками -->
+  <div id="hearts-bg" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+  <!-- ИНТРО-ЭКРАН СЮРПРИЗА -->
+  <div id="intro-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/85 backdrop-blur-md transition-opacity duration-700">
+    <div class="text-center p-6 max-w-sm">
+      <h2 class="font-cursive text-4xl md:text-5xl text-pink-300 mb-2 drop-shadow-md">
+        Рамиса & Самир
+      </h2>
+      <p class="font-handwriting text-2xl text-pink-200/90 mb-8">
+        Обязательно посмотри...
+      </p>
+      
+      <!-- Пульсирующая кнопка-сердце -->
+      <button id="start-btn" onclick="openSurprise()" class="animate-heartbeat cursor-pointer group focus:outline-none">
+        <div class="relative flex items-center justify-center">
+          <i class="fa-solid fa-heart text-8xl md:text-9xl text-pink-600 group-hover:text-pink-500 transition-colors"></i>
+          <span class="absolute text-white font-bold text-xs md:text-sm uppercase tracking-wider text-center px-2 drop-shadow-lg">
+            Нажми,Рамиса 💕
+          </span>
+        </div>
+      </button>
+
+      <p class="mt-8 text-pink-200/70 text-xs tracking-wider uppercase font-light">
+        Нажмите, чтобы открыть видео
+      </p>
+    </div>
+  </div>
+
+  <!-- ОСНОВНОЙ КОНТЕНТ -->
+  <main id="main-content" class="relative z-10 w-full max-w-md opacity-0 scale-95 transition-all duration-1000 hidden">
+    
+    <!-- Шапка страницы -->
+    <header class="text-center mb-6">
+      <h1 class="font-cursive text-5xl md:text-6xl text-pink-300 drop-shadow-[0_0_15px_rgba(255,105,180,0.8)] mb-1">
+        Рамиса & Самир
+      </h1>
+    </header>
+
+    <!-- СЕКЦИЯ ВЕРТИКАЛЬНОГО ВИДЕОПЛЕЕРА (9:16) -->
+    <div class="glass-card rounded-3xl p-3 md:p-4 mb-6 glow-effect relative overflow-hidden">
+      <!-- Контейнер с пропорциями 9:16 для TikTok/Reels/Shorts -->
+      <div class="relative aspect-vertical w-full rounded-2xl overflow-hidden bg-black/60 shadow-inner group">
+        
+        <!-- ======================================================================= -->
+        <!-- ТЕГ ВИДЕО ПЛЕЕРА -->
+        <!-- По умолчанию стоит видео с заменяемым именем video.mp4                 -->
+        <!-- ======================================================================= -->
+        <video 
+          id="love-video" 
+          class="w-full h-full object-cover cursor-pointer"
+          playsinline 
+          loop
+          preload="auto"
+          onclick="togglePlay()"
+          src="video.mp4">
+          Ваш браузер не поддерживает видео.
+        </video>
+
+        <!-- Индикатор буферизации -->
+        <div id="video-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/50 pointer-events-none opacity-0 transition-opacity">
+          <i class="fa-solid fa-heart text-3xl text-pink-400 animate-ping"></i>
+          <span class="text-pink-200 text-xs uppercase tracking-widest">Загрузка видео...</span>
+        </div>
+
+        <!-- Оверлей Плей/Пауза -->
+        <div id="video-overlay" onclick="togglePlay()" class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-100 group-hover:opacity-100 transition-opacity cursor-pointer">
+          <div class="w-16 h-16 rounded-full glass-btn flex items-center justify-center text-pink-200 text-2xl shadow-lg transform group-hover:scale-110 transition-transform">
+            <i id="play-icon" class="fa-solid fa-play ml-1"></i>
+          </div>
+        </div>
+
+        <!-- Нижняя панель управления -->
+        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 flex flex-col gap-2 opacity-90 transition-opacity">
+          
+          <!-- Прогресс видео -->
+          <div class="w-full">
+            <input type="range" id="seek-bar" value="0" class="w-full h-1.5 bg-pink-900/60 rounded-lg appearance-none cursor-pointer accent-pink-500">
+          </div>
+
+          <!-- Кнопки управления -->
+          <div class="flex items-center justify-between text-pink-300">
+            <div class="flex items-center gap-2">
+              <button onclick="togglePlay()" class="hover:text-white transition-colors p-1.5 focus:outline-none">
+                <i id="control-play-icon" class="fa-solid fa-play text-lg"></i>
+              </button>
+              <button onclick="restartVideo()" class="hover:text-white transition-colors p-1.5 focus:outline-none" title="Заново">
+                <i class="fa-solid fa-rotate-right text-base"></i>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="toggleMute()" class="hover:text-white transition-colors p-1.5 focus:outline-none">
+                <i id="mute-icon" class="fa-solid fa-volume-xmark text-lg"></i>
+              </button>
+              <button onclick="toggleFullscreen()" class="hover:text-white transition-colors p-1.5 focus:outline-none">
+                <i class="fa-solid fa-expand text-lg"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ГЕНЕРАТОР ПРИЧИН ЛЮБВИ -->
+    <div class="glass-card rounded-2xl p-5 mb-6 text-center">
+      <h2 class="font-handwriting text-3xl text-pink-200 mb-3 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-sparkles text-pink-400 text-sm"></i>
+        Почему я люблю тебя, Рамиса
+        <i class="fa-solid fa-sparkles text-pink-400 text-sm"></i>
+      </h2>
+      
+      <div class="min-h-[70px] flex items-center justify-center my-2 px-4 py-3 bg-pink-950/30 rounded-xl border border-pink-500/20">
+        <p id="reason-text" class="text-sm text-pink-100 font-medium italic transition-all duration-300">
+          "Нажми на кнопку ниже, чтобы узнать одну из причин..."
+        </p>
+      </div>
+
+      <button onclick="generateReason()" class="mt-3 px-5 py-2.5 rounded-full glass-btn text-pink-200 font-semibold text-xs tracking-wide uppercase hover:text-white flex items-center justify-center gap-2 mx-auto active:scale-95">
+        <i class="fa-solid fa-heart-circle-plus text-pink-400 text-base"></i>
+        Ещё одна причина
+      </button>
+    </div>
+
+    <!-- РОМАНТИЧЕСКОЕ ПИСЬМО ОРАМИСЕ ОТ САМИРА -->
+    <div class="glass-card rounded-2xl overflow-hidden mb-8">
+      <button onclick="toggleLetter()" class="w-full p-5 text-left flex items-center justify-between focus:outline-none group">
+        <span class="font-handwriting text-3xl text-pink-200 group-hover:text-white flex items-center gap-3">
+          <i class="fa-envelope-open-text text-pink-400 text-2xl"></i>
+          Письмо для Рамисы
+        </span>
+        <i id="letter-arrow" class="fa-solid fa-chevron-down text-pink-300 group-hover:text-white transition-transform duration-300"></i>
+      </button>
+
+      <div id="letter-content" class="max-h-0 overflow-hidden transition-all duration-500 ease-in-out px-6">
+        <div class="pt-2 pb-6 border-t border-pink-500/20">
+          <p id="letter-text" class="font-handwriting text-2xl text-pink-100 leading-relaxed">
+            <!-- Текст печатается скриптом -->
+          </p>
+          <div class="text-right mt-4 font-cursive text-3xl text-pink-300">
+            Твой Самир ❤️
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="text-center text-xs text-pink-300/50 pb-6">
+      Рамиса & Самир • Навсегда вместе 💖
+    </footer>
+
+  </main>
+
+  <script>
+    // Причины любви для Рамисы от Самира
+    const loveReasons = [
+      "Рамиса, твоя улыбка делает любой день особенным и светлым ✨",
+      "Твой голос — это то, что успокаивает меня в любую минуту 🎶",
+      "Рядом с тобой я чувствую себя самым счастливым человеком ❤️",
+      "Ты умеешь дарить такое тепло, которого нет больше ни у кого 🌸",
+      "Твои глаза — это весь мой мир, Рамиса 🌌",
+      "Ты вдохновляешь меня расти и становиться лучше каждый день 🌟",
+      "Каждый момент с тобой превращается в красивое воспоминание 💕",
+      "Ты — моё главное вдохновение и радость, Рамиса 💖"
+    ];
+
+    // Письмо для Рамисы от Самира
+    const fullLetterText = "Рамиса, помнишь тот день? Это был твой день рождения, и в тот день ты решила расстаться со мной. А вместо этого мы остались вместе — именно в этот день началась наша настоящая история. Мы знаем друг друга почти 9 лет, это наша детская любовь, которая прошла с нами через столько времени и испытаний. И я точно знаю: никакая мелочь на свете не стоит того, чтобы нам расставаться. Я люблю тебя всем сердцем, сегодня — больше, чем вчера, и это будет только расти.";
+
+    let reasonIndex = 0;
+    let isLetterTyped = false;
+
+    // 1. Открытие сюрприза
+    function openSurprise() {
+      const introScreen = document.getElementById('intro-screen');
+      const mainContent = document.getElementById('main-content');
+      const video = document.getElementById('love-video');
+
+      confetti({
+        particleCount: 80,
+        spread: 100,
+        origin: { y: 0.6 },
+        colors: ['#ff1493', '#ff69b4', '#ffb6c1', '#ffffff']
+      });
+
+      introScreen.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        introScreen.style.display = 'none';
+      }, 700);
+
+      mainContent.classList.remove('hidden');
+      setTimeout(() => {
+        mainContent.classList.remove('opacity-0', 'scale-95');
+        mainContent.classList.add('opacity-100', 'scale-100');
+      }, 50);
+
+      video.muted = false;
+      video.play().then(() => {
+        updatePlayIcons(true);
+        updateMuteIcon(false);
+      }).catch(() => {
+        video.muted = true;
+        video.play();
+        updatePlayIcons(true);
+        updateMuteIcon(true);
+      });
+    }
+
+    // 2. Управление видео
+    const video = document.getElementById('love-video');
+    const playIcon = document.getElementById('play-icon');
+    const controlPlayIcon = document.getElementById('control-play-icon');
+    const videoOverlay = document.getElementById('video-overlay');
+    const seekBar = document.getElementById('seek-bar');
+    const muteIcon = document.getElementById('mute-icon');
+
+    function togglePlay() {
+      if (video.paused) {
+        video.play();
+        updatePlayIcons(true);
+        videoOverlay.classList.add('opacity-0');
+      } else {
+        video.pause();
+        updatePlayIcons(false);
+        videoOverlay.classList.remove('opacity-0');
+      }
+    }
+
+    function restartVideo() {
+      video.currentTime = 0;
+      video.play();
+      updatePlayIcons(true);
+      videoOverlay.classList.add('opacity-0');
+    }
+
+    function updatePlayIcons(isPlaying) {
+      if (isPlaying) {
+        playIcon.className = "fa-solid fa-pause ml-0";
+        controlPlayIcon.className = "fa-solid fa-pause text-lg";
+      } else {
+        playIcon.className = "fa-solid fa-play ml-1";
+        controlPlayIcon.className = "fa-solid fa-play text-lg";
+      }
+    }
+
+    function toggleMute() {
+      video.muted = !video.muted;
+      updateMuteIcon(video.muted);
+    }
+
+    function updateMuteIcon(isMuted) {
+      if (isMuted) {
+        muteIcon.className = "fa-solid fa-volume-xmark text-lg text-pink-400";
+      } else {
+        muteIcon.className = "fa-solid fa-volume-high text-lg";
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        if (video.requestFullscreen) video.requestFullscreen();
+        else if (video.webkitRequestFullscreen) video.webkitRequestFullscreen();
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    video.addEventListener('timeupdate', () => {
+      if (video.duration) {
+        seekBar.value = (video.currentTime / video.duration) * 100;
+      }
+    });
+
+    // Индикатор буферизации видео
+    const videoLoading = document.getElementById('video-loading');
+    video.addEventListener('waiting', () => videoLoading.classList.remove('opacity-0'));
+    video.addEventListener('playing', () => videoLoading.classList.add('opacity-0'));
+    video.addEventListener('canplay', () => videoLoading.classList.add('opacity-0'));
+
+    seekBar.addEventListener('input', () => {
+      if (video.duration) {
+        video.currentTime = (seekBar.value / 100) * video.duration;
+      }
+    });
+
+    // 3. Генератор причин
+    function generateReason() {
+      const reasonText = document.getElementById('reason-text');
+      
+      confetti({
+        particleCount: 20,
+        spread: 50,
+        origin: { y: 0.7 },
+        colors: ['#ff69b4', '#ff1493']
+      });
+
+      reasonText.style.opacity = 0;
+      reasonText.style.transform = 'translateY(10px)';
+
+      setTimeout(() => {
+        reasonText.textContent = `"${loveReasons[reasonIndex]}"`;
+        reasonText.style.opacity = 1;
+        reasonText.style.transform = 'translateY(0)';
+        
+        reasonIndex = (reasonIndex + 1) % loveReasons.length;
+      }, 200);
+    }
+
+    // 4. Раскрывающееся письмо
+    function toggleLetter() {
+      const letterContent = document.getElementById('letter-content');
+      const letterArrow = document.getElementById('letter-arrow');
+      const letterText = document.getElementById('letter-text');
+
+      if (letterContent.style.maxHeight && letterContent.style.maxHeight !== '0px') {
+        letterContent.style.maxHeight = '0px';
+        letterArrow.style.transform = 'rotate(0deg)';
+      } else {
+        letterContent.style.maxHeight = '500px';
+        letterArrow.style.transform = 'rotate(180deg)';
+
+        if (!isLetterTyped) {
+          isLetterTyped = true;
+          typeWriterEffect(letterText, fullLetterText, 0);
+        }
+      }
+    }
+
+    function typeWriterEffect(element, text, i) {
+      if (i < text.length) {
+        element.innerHTML = text.substring(0, i + 1) + '<span class="animate-pulse text-pink-400">|</span>';
+        setTimeout(() => typeWriterEffect(element, text, i + 1), 35);
+      } else {
+        element.innerHTML = text;
+      }
+    }
+
+    // 5. Падающие сердечки
+    function createFloatingHeart() {
+      const container = document.getElementById('hearts-bg');
+      const heart = document.createElement('div');
+      
+      const icons = ['fa-heart', 'fa-sparkles', 'fa-heart'];
+      const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+      
+      heart.className = `floating-heart fa-solid ${randomIcon} text-pink-500/30`;
+      
+      const size = Math.random() * 20 + 10;
+      const left = Math.random() * 100;
+      const duration = Math.random() * 5 + 5;
+
+      heart.style.fontSize = `${size}px`;
+      heart.style.left = `${left}%`;
+      heart.style.animationDuration = `${duration}s`;
+      heart.style.filter = `blur(${Math.random() * 2}px)`;
+
+      container.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, duration * 1000);
+    }
+
+    setInterval(createFloatingHeart, 400);
+
+    // Эффект клика
+    window.addEventListener('click', (e) => {
+      if (e.target.closest('button') || e.target.closest('video') || e.target.closest('input')) return;
+
+      const heart = document.createElement('i');
+      heart.className = 'fa-solid fa-heart fixed text-pink-400 pointer-events-none z-50 animate-ping';
+      heart.style.left = `${e.clientX - 10}px`;
+      heart.style.top = `${e.clientY - 10}px`;
+      heart.style.fontSize = '20px';
+      
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 700);
+    });
+  </script>
+</body>
+</html>
