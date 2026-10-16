@@ -348,7 +348,6 @@
     const video = document.getElementById('love-video');
     const playIcon = document.getElementById('play-icon');
     const controlPlayIcon = document.getElementById('control-play-icon');
-    const videoOverlay = document.getElementById('video-overlay');
     const seekBar = document.getElementById('seek-bar');
     const muteIcon = document.getElementById('mute-icon');
 
@@ -356,11 +355,9 @@
       if (video.paused) {
         video.play();
         updatePlayIcons(true);
-        videoOverlay.classList.add('opacity-0');
       } else {
         video.pause();
         updatePlayIcons(false);
-        videoOverlay.classList.remove('opacity-0');
       }
     }
 
@@ -368,7 +365,6 @@
       video.currentTime = 0;
       video.play();
       updatePlayIcons(true);
-      videoOverlay.classList.add('opacity-0');
     }
 
     function updatePlayIcons(isPlaying) {
@@ -454,7 +450,7 @@
         letterContent.style.maxHeight = '0px';
         letterArrow.style.transform = 'rotate(0deg)';
       } else {
-        letterContent.style.maxHeight = '500px';
+        letterContent.style.maxHeight = '3000px';
         letterArrow.style.transform = 'rotate(180deg)';
 
         if (!isLetterTyped) {
@@ -470,6 +466,8 @@
         setTimeout(() => typeWriterEffect(element, text, i + 1), 35);
       } else {
         element.innerHTML = text;
+        const letterContent = document.getElementById('letter-content');
+        letterContent.style.maxHeight = letterContent.scrollHeight + 'px';
       }
     }
 
